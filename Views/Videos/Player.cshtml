@@ -1,0 +1,221 @@
+@{
+    Layout = "_Player";
+}
+
+@model MvcMovie.Models.Video
+
+@{
+    ViewData["Title"] = "Player";
+}
+<script src="https://kit.fontawesome.com/efe6a73c66.js" crossorigin="anonymous"></script>
+<style>
+    video {
+        position: absolute;
+    }
+
+    ::cue {
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+        background-color: transparent;
+        font-size: smaller;
+
+
+    }
+
+    #video-controls[data-state="shown"] {
+        position: absolute;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        flex-direction: column;
+        z-index: 999;
+    }
+
+    #video-controls[data-state="hidden"] {
+        height: 100vh;
+        width: 100vw;
+        position: absolute;
+        visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        opacity: 0;
+
+        -webkit-transition: visibility 0.5s, opacity 0.5s;
+        -moz-transition: visibility 0.5s, opacity 0.5s;
+        -ms-transition: visibility 0.5s, opacity 0.5s;
+        -o-transition: visibility 0.5s, opacity 0.5s;
+        transition: visibility 0.5s, opacity 0.5s;
+
+        /* Wait a moment before fading out the control bar */
+        -webkit-transition-delay: 1s;
+        -moz-transition-delay: 1s;
+        -ms-transition-delay: 1s;
+        -o-transition-delay: 1s;
+        transition-delay: 1s;
+    }
+
+    #video-controls button {
+        display: flex;
+        height: 2rem;
+        margin: 1rem;
+        color: white;
+        background: none;
+        border: none;
+        font-weight: bolder;
+        font-size: large;
+        vertical-align: middle;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    #top-controls {
+        flex-direction: row;
+    }
+
+    #center-controls {
+        flex-grow: 1;
+        align-content: center;
+    }
+
+    #play-controls {
+        display: flex;
+        flex-direction: row;
+    }
+
+    #bottom-controls {
+        width: 100vw;
+
+        display: flex;
+        height: 5rem;
+        background: black;
+        align-content: space-between;
+        background: none;
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
+    }
+
+    #captions-list {
+        visibility: hidden;
+        padding: 5px;
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.5);
+        bottom: 50px;
+        right: 60px
+    }
+
+    #captions-list>li {
+        list-style-type: none;
+        font-size: smaller;
+        font-weight: lighter;
+        padding: 5px;
+    }
+
+    .caption-li:hover{
+        font-weight: 900;
+        text-decoration: underline;
+    }
+
+    #progress-bar {
+        -webkit-appearance: none;
+        position: relative;
+        left: 0;
+        right: 0;
+        bottom: 0.75rem;
+        width: auto;
+        height: 4px;
+        border-radius: 5px;
+    }
+
+    #progress-slider {
+        -webkit-appearance: none;
+        position: relative;
+        bottom: -0.75rem;
+        background: none;
+        height: 4px;
+        z-index: 10;
+    }
+
+    progress::-webkit-progress-bar {
+        background-color: grey;
+        border-radius: 7px;
+    }
+
+    progress::-webkit-progress-value {
+        background-color: royalblue;
+        border-radius: 7px;
+        box-shadow: 1px 1px 5px 3px rgba(255, 255, 255, 0.1);
+    }
+
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        position: relative;
+        bottom: 0;
+        width: 1rem;
+        height: 1rem;
+        background: white;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    button:hover {
+        border: red solid 2px;
+    }
+</style>
+
+<div class="text-center" id="player-container" style="background-color: black; position:static;">
+    <video id="video" style="display:flex; height: 100dvh; width: 100vw; position: fixed; background-color: black;"
+        autoplay disableRemotePlayback preload="metadata" src="/Videos/Stream/@Model.Id" tabindex="-1" />
+    <track label="English" kind="subtitles" id="subtitles" srclang="en" src="/Videos/Subtitles/@Model.Id/Eng" default />
+    <track label="French" kind="subtitles" id="subtitles" srclang="fr" src="/Videos/Subtitles/@Model.Id/Fr" />
+    <track label="Spanish" kind="subtitles" id="subtitles" srclang="es" src="/Videos/Subtitles/@Model.Id/Sp" />
+    </video>
+    <div id="video-controls" class="" data-state="shown" tabindex="-1">
+        <div id="top-controls">
+            <button id="back" onclick="history.back()" class="playerNav">
+                <i class="fa-solid fa-arrow-left m-2"></i>
+                Back
+            </button>
+            <button id="restart" class="playerNav"><i class="fa-solid fa-arrow-rotate-left m-2"></i>Restart</button>
+            
+        </div>
+        <div id="center-controls" class="justify-content-center align-self-center">
+            <span class="text-white" id="play-controls">
+                <button id="rewind-btn" class="fs-1" tabindex="-1"><i class="fa-solid fa-backward mx-3"></i></button>
+                <button id="play-pause-btn" class="fs-1" tabindex="-1"><i id="play-pause-icon"
+                        class="fa-solid fa-pause mx-3"></i></button>
+                <button id="forward-btn" class="fs-1" tabindex="-1"><i class="fa-solid fa-forward mx-3"></i></button>
+            </span>
+
+        </div>
+        <div id="bottom-controls">
+            <span class="text-white m-3 lh-0.5" id="current-time"></span>
+            <div class="w-100 move" id="progress">
+                <input type="range" min="0" max="100" value="0" class="slider  playerNav w-100" id="progress-slider">
+                <progress id="progress-bar" value="0" max="100" class="w-100" tabindex="-1"> </progress>
+            </div>
+            <span class="text-white m-3" id="duration"></span>
+            <button id="captions-btn" class="playerNav">
+                <i id="captions-icon" class="fa-solid fa-closed-captioning"></i>
+                <ul id="captions-list"">
+                   <li class="caption-li playerNav" tabindex=5 role="button" >Off</li>
+                </ul>
+
+            </button>
+            <button id="fullscreen" class="playerNav playerNav">
+                    <i id="fullscreen-icon" class="fa-solid fa-expand"></i>
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+
+<script src="/js/player.js"></script>
+
+<Script type="module">
+    import { transformSrtTracks } from "/js/transformer.js"
+    transformSrtTracks(video)
+</Script>
