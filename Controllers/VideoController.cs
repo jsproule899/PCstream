@@ -5,6 +5,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using Mono.TextTemplating;
+using MvcMovie.Models;
 
 
 namespace MvcMovie.Video
@@ -26,13 +27,28 @@ namespace MvcMovie.Video
             }
 
             var video = await _context.Video.FirstOrDefaultAsync(v => v.Id == id);
+            var episode = await _context.Episode.Include("Season").Where(e => e.Video.Id == id).FirstOrDefaultAsync();
+            if (episode == null)
+            {
+                ViewData["NextEpisode"] = null;
+            }
+            else
+            {
+                ViewData["Episode"] = episode;
+                var show = await _context.Show.Where(s => s.Id == episode.Season.ShowId).FirstOrDefaultAsync();
+                var season = await _context.Season.Where(s => s.Id == episode.SeasonId).FirstOrDefaultAsync();
+                ViewData["Show"] = show;
+                ViewData["Season"] = season;
+                var nextEpisodeCurrentSeason = await _context.Episode.Include("Video").Where(e => e.SeasonId == episode.SeasonId).Where(e => e.EpisodeNumber > episode.EpisodeNumber).OrderBy(e => e.EpisodeNumber).FirstOrDefaultAsync();
+                Episode? NextEpisode = nextEpisodeCurrentSeason ?? await _context.Episode.Include("Video").Where(e => e.Season.ShowId == show.Id).Where(e => e.Season.SeasonNumber > season.SeasonNumber).OrderBy(e => e.Season.SeasonNumber).ThenBy(e => e.EpisodeNumber).FirstOrDefaultAsync();
+                Console.WriteLine("NextEpisode.Video: " + NextEpisode?.Video.Id);
+                ViewData["NextEpisode"] = NextEpisode;
+            }
 
             if (video == null)
             {
                 return NotFound();
             }
-
-
 
             return View(video);
         }

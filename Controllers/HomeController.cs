@@ -1,21 +1,30 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MvcMovie.Data;
 using MvcMovie.Models;
 
 namespace MvcMovie.Controllers;
 
-public class HomeController : Controller
+public class HomeController(ILogger<HomeController> logger, MvcMovieContext context) : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<HomeController> _logger = logger;
+    private readonly MvcMovieContext _context = context;
 
-    public HomeController(ILogger<HomeController> logger)
+    public async Task<IActionResult> Index(string? searchString)
     {
-        _logger = logger;
-    }
+        if (_context.Movie == null)
+        {
+            return Problem("Entity set 'MvcMovieContext.Movie' is null.");
+        }
 
-    public IActionResult Index()
-    {
-        return View();
+        var movies = from m in _context.Movie select m;
+
+        if (!String.IsNullOrEmpty(searchString))
+        {
+            movies = movies.Where(s => s.Title!.ToLower().Contains(searchString.ToLower()));
+        }
+        return View(await movies.Include("Video").ToListAsync());
     }
 
     public IActionResult Privacy()

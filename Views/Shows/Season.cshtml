@@ -43,7 +43,9 @@
                                     d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z" />
                             </svg>
                         </div>
-                        <small class="card-subtitle text-center text-muted" style="position: absolute; z-index: 1; bottom: 10px; left:10px ">@(episode.Runtime) mins</small>
+                        <small class="card-subtitle text-center text-muted"
+                            style="position: absolute; z-index: 1; bottom: 10px; left:10px ">@(episode.Runtime) mins</small>
+                        <progress id="progress-bar-@(episode.Video.Id)" max="100" value="0" class="episode-progress"data-runtime="@episode.Runtime"></progress>
                         <div style=" position: absolute; z-index: 1; bottom: 10px; right:10px ">
                             @for (int i = 1; i < episode.Rating / 2; i++)
                             {
@@ -61,8 +63,8 @@
                     </div>
                 </a>
                 <p class="card-title text-center">Episode @(episode.EpisodeNumber) - @(episode.Title)</p>
-                    
-                
+
+
 
             </div>
 
@@ -70,3 +72,49 @@
 
         }
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const progressBars = document.querySelectorAll("progress");
+            progressBars.forEach(bar => {
+                const id = bar.id.split("-")[2];
+                const value = Math.floor(((localStorage.getItem(id + "_timestamp") / 60) / bar.dataset.runtime) * 100);
+                bar.style.setProperty('--progress-bar-color', '#007bff');
+                bar.value = value;
+            });
+        });
+    </script>
+
+    <style>
+        progress {
+            position: absolute;
+            display: flex;
+            z-index: 1;
+            bottom: 0px;
+            left: 50%;
+            padding: 0px;
+            height: 3%;
+            margin: 0px;
+            width: 100%;
+            border-radius: 0px;
+            width: 100%;
+            box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+            transform: translate(-50%, 0%);
+        }
+
+        progress::-webkit-progress-bar {
+            background-color: transparent;
+            border-radius: 0px;
+        }
+
+        progress::-webkit-progress-value {
+            background-color: royalblue;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0px 0px 5px royalblue;
+        }
+
+        progress::-moz-progress-bar {
+            /* style rules */
+        }
+    </style>

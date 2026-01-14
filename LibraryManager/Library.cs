@@ -10,28 +10,21 @@ using MvcMovie.Migrations;
 
 namespace LibraryManager;
 
-class Library
+class Library(string path)
 {
-    string Path { get; set; }
-    static HttpClient client = new HttpClient();
+    string Path { get; set; } = path;
+    static readonly HttpClient client = new();
 
-    public Library(string path)
-    {
-        Path = path;
-    }
     public async void Scan(MvcMovieContext context)
     {
         string[] mp4Files = Directory.GetFiles(Path, "*.mp4", SearchOption.AllDirectories);
         string[] mkvFiles = Directory.GetFiles(Path, "*.mkv", SearchOption.AllDirectories);
-        string[] files = mp4Files.Concat(mkvFiles).ToArray();
-
-
-
+        string[] files = [.. mp4Files, .. mkvFiles];
 
         foreach (string file in files)
         {
-            MediaFile mediaFile = new MediaFile(file);
-            mediaFile.parseNameFromPath();
+            MediaFile mediaFile = new(file);
+            mediaFile.ParseNameFromPath();
 
             if (mediaFile.isMovie)
             {

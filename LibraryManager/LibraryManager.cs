@@ -5,12 +5,12 @@ namespace LibraryManager;
 
 class Manager
 {
-    public static List<Library> libraries = new List<Library>();
+    public static List<Library> libraries = [];
     private static WebApplication _App;
 
     public static void Add(string path)
     {
-        Library lib = new Library(path);
+        Library lib = new(path);
 
         libraries.Add(lib);
     }
@@ -21,7 +21,7 @@ class Manager
         {
             var services = scope.ServiceProvider;
 
-            MvcMovieContext context = new MvcMovieContext(
+            MvcMovieContext context = new(
                                      services.GetRequiredService<
                                          DbContextOptions<MvcMovieContext>>());
 

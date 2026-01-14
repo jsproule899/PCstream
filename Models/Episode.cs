@@ -31,7 +31,7 @@ public class Episode
     public string? Summary { get; set; }
 
     [Required]
-    public Video Video { get; set; }
+    public required Video Video { get; set; }
 
     public int? SeasonId { get; set; } = null;
 

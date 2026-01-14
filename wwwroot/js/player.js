@@ -1,6 +1,3 @@
-
-
-
 const subtitles = document.getElementById("subtitles");
 const video = document.getElementById("video");
 const playerContainer = document.getElementById("player-container");
@@ -16,13 +13,18 @@ const playPauseIcon = document.getElementById("play-pause-icon");
 const playPauseButton = document.getElementById("play-pause-btn");
 const rewind = document.getElementById("rewind-btn");
 const fastforward = document.getElementById("forward-btn");
-
-
-
+const nextEpisode = document.getElementById("next-episode");
+const nextEpisodeTimer = document.getElementById("next-episode-timer");
+const watchCreditsBtn = document.querySelector(".watch-credits");
 const captionTracks = document.querySelectorAll("#subtitles")
 const captionsBtn = document.getElementById("captions-btn");
 const captionsIcon = document.getElementById("captions-icon");
 const captionsList = document.getElementById("captions-list");
+const debug = document.getElementById("debug");
+let autoplayStarted = false;
+let autoplayCancelled = false;
+let nextEpisodeTimeout = null;
+let nextEpisodeTimerInterval = null;
 let currentTabIndex = 5;
 captionTracks.forEach(track => {
     let node = document.createElement("li");
@@ -130,6 +132,15 @@ video.addEventListener("timeupdate", (event) => {
         progessSlider.value = video.currentTime
     }
     progess.value = (video.currentTime / video.duration) * 100
+    if (
+        !autoplayStarted &&
+        !autoplayCancelled &&
+        video.duration - video.currentTime < 120
+    ) {
+        autoplayStarted = true;
+        showNextEpisode();
+        autoPlayNextEpisode();
+    }
 
 })
 progessSlider.addEventListener("change", e => {
@@ -205,6 +216,7 @@ function playPause() {
         playPauseIcon.classList.remove("fa-pause")
         playPauseIcon.classList.add("fa-play")
         video.pause()
+        watchCredits();
     }
 }
 
@@ -327,4 +339,44 @@ function loadTimestamp() {
 function clearTimestamp() {
     localStorage.removeItem(video_id + "_timestamp")
     video.currentTime = 0
+}
+
+function showNextEpisode() {
+    if (nextEpisode) {
+        nextEpisodeControls = document.querySelector(".next-episode-controls");
+        nextEpisodeControls.style.visibility = "visible";
+    }
+}
+
+function autoPlayNextEpisode() {
+    if (nextEpisode) {
+        nextEpisode.children[0].focus();
+        nextEpisodeTimeout = setTimeout(() => {
+            window.location.href = nextEpisode.children[0].href;
+        }, 10000);
+
+
+
+        let timeLeft = 10;
+        nextEpisodeTimerInterval = setInterval(() => {
+            timeLeft--;
+            nextEpisodeTimer.value = 10 - timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(nextEpisodeTimerInterval);
+            }
+        }, 1000);
+    }
+}
+
+function watchCredits() {
+    autoplayCancelled = true;
+    autoplayStarted = false;
+
+    clearTimeout(nextEpisodeTimeout);
+    clearInterval(nextEpisodeTimerInterval);
+
+    nextEpisodeTimeout = null;
+    nextEpisodeTimerInterval = null;
+
+    nextEpisodeTimer.value = 0;
 }
