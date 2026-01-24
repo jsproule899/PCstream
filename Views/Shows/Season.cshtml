@@ -4,6 +4,41 @@
     ViewData["Title"] = Model.Title;
 }
 
+<style>
+    progress {
+        visibility: hidden;
+        position: absolute;
+        display: flex;
+        z-index: 1;
+        bottom: 0px;
+        left: 50%;
+        padding: 0px;
+        height: 3%;
+        margin: 0px;
+        width: 100%;
+        border-radius: 0px;
+        width: 100%;
+        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+        transform: translate(-50%, 0%);
+    }
+
+    progress::-webkit-progress-bar {
+        background-color: transparent;
+        border-radius: 0px;
+    }
+
+    progress::-webkit-progress-value {
+        background-color: royalblue;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+        box-shadow: 0px 0px 5px royalblue;
+    }
+
+    progress::-moz-progress-bar {
+        /* style rules */
+    }
+</style>
+
 <div class="row">
     <div class="col-2 text-center">
         <img src="https://image.tmdb.org/t/p/original@(Model.Poster)" alt="" style="width: 100%;">
@@ -45,7 +80,8 @@
                         </div>
                         <small class="card-subtitle text-center text-muted"
                             style="position: absolute; z-index: 1; bottom: 10px; left:10px ">@(episode.Runtime) mins</small>
-                        <progress id="progress-bar-@(episode.Video.Id)" max="100" value="0" class="episode-progress"data-runtime="@episode.Runtime"></progress>
+                        <progress id="progress-bar-@(episode.Video.Id)" max="100" value="0" class="episode-progress"
+                            data-runtime="@episode.Runtime"></progress>
                         <div style=" position: absolute; z-index: 1; bottom: 10px; right:10px ">
                             @for (int i = 1; i < episode.Rating / 2; i++)
                             {
@@ -73,48 +109,34 @@
         }
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const progressBars = document.querySelectorAll("progress");
-            progressBars.forEach(bar => {
-                const id = bar.id.split("-")[2];
-                const value = Math.floor(((localStorage.getItem(id + "_timestamp") / 60) / bar.dataset.runtime) * 100);
-                bar.style.setProperty('--progress-bar-color', '#007bff');
-                bar.value = value;
-            });
-        });
-    </script>
+ <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const progressBars = document.querySelectorAll("progress");
 
-    <style>
-        progress {
-            position: absolute;
-            display: flex;
-            z-index: 1;
-            bottom: 0px;
-            left: 50%;
-            padding: 0px;
-            height: 3%;
-            margin: 0px;
-            width: 100%;
-            border-radius: 0px;
-            width: 100%;
-            box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
-            transform: translate(-50%, 0%);
+    for (const bar of progressBars) {
+        // Faster than split()
+        const id = bar.id.substring(bar.id.lastIndexOf("-") + 1);
+
+        const stored = localStorage.getItem(id + "_timestamp");
+        if (!stored) {
+            bar.style.visibility = "hidden";
+            continue;
         }
 
-        progress::-webkit-progress-bar {
-            background-color: transparent;
-            border-radius: 0px;
+        const runtime = Number(bar.dataset.runtime);
+        if (!runtime) {
+            bar.style.visibility = "hidden";
+            continue;
         }
 
-        progress::-webkit-progress-value {
-            background-color: royalblue;
-            border-bottom-left-radius: 5px;
-            border-bottom-right-radius: 5px;
-            box-shadow: 0px 0px 5px royalblue;
-        }
+        const value = Math.floor((stored / 60 / runtime) * 100);
 
-        progress::-moz-progress-bar {
-            /* style rules */
+        if (value > 0) {
+            bar.value = value;
+            bar.style.visibility = "visible";
+        } else {
+            bar.style.visibility = "hidden";
         }
-    </style>
+    }
+});
+</script>
