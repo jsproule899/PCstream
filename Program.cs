@@ -1,21 +1,24 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
 using MvcMovie.Data;
 using LibraryManager;
-using System.Composition;
+using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
+string libraryDirectory = builder.Configuration["LibraryDirectory"] ?? "D:\\Videos";
 builder.Services.AddDbContext<MvcMovieContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("MvcMovieContext") ?? throw new InvalidOperationException("Connection string 'MvcMovieContext' not found.")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("MvcMovieContext") ?? throw new InvalidOperationException("Connection string 'MvcMovieContext' not found."))
+    );
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-Manager.Initialise(app);
-Manager.Add("D:\\Videos");
-await Manager.Scan();
+using var db = new MvcMovieContext(app.Services.GetRequiredService<DbContextOptions<MvcMovieContext>>());
+db.Database.Migrate();
+
+Manager.Add(libraryDirectory);
+await Manager.Scan(db);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -32,10 +35,15 @@ app.UseStaticFiles(new StaticFileOptions()
     OnPrepareResponse =
         r =>
         {
-            string path = r.File.PhysicalPath;
+            string path = r.File.PhysicalPath ?? "";
             if (path.EndsWith(".css") || path.EndsWith(".gif") || path.EndsWith(".jpg") || path.EndsWith(".png") || path.EndsWith(".svg"))
             {
                 TimeSpan maxAge = new(7, 0, 0, 0);
+                r.Context.Response.Headers.Append("Cache-Control", "max-age=" + maxAge.TotalSeconds.ToString("0"));
+            }
+            else if (path.EndsWith(".js"))
+            {
+                TimeSpan maxAge = new(1, 0, 0, 0);
                 r.Context.Response.Headers.Append("Cache-Control", "max-age=" + maxAge.TotalSeconds.ToString("0"));
             }
         }

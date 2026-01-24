@@ -24,7 +24,7 @@ namespace MvcMovie.Controllers
 
             var movies = from m in _context.Movie select m;
 
-            if(!String.IsNullOrEmpty(searchString))
+            if (!String.IsNullOrEmpty(searchString))
             {
                 movies = movies.Where(s => s.Title!.ToLower().Contains(searchString.ToLower()));
             }
@@ -59,7 +59,7 @@ namespace MvcMovie.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        
+
         public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Rating")] Movie movie)
         {
             if (ModelState.IsValid)

@@ -1,7 +1,6 @@
 using MvcMovie.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Net.Http.Headers;
 
 namespace MvcMovie.Controllers
 {
@@ -9,7 +8,7 @@ namespace MvcMovie.Controllers
     public class ShowsController : Controller
     {
 
-         private readonly MvcMovieContext _context;
+        private readonly MvcMovieContext _context;
 
         public ShowsController(MvcMovieContext context)
         {
@@ -35,7 +34,7 @@ namespace MvcMovie.Controllers
             return View(await shows.ToListAsync());
         }
 
-        
+
 
         // GET: Show/5
         public async Task<IActionResult> Details(int? id)
@@ -53,7 +52,7 @@ namespace MvcMovie.Controllers
 
             var show = await _context.Show.Include("Seasons")
                 .FirstOrDefaultAsync(s => s.Id == id);
-          
+
 
             if (show == null)
             {

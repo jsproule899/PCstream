@@ -5,8 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using MvcMovie.Migrations;
-
 
 namespace LibraryManager;
 
@@ -53,13 +51,15 @@ class Library(string path)
                 {
                     context.Remove(episode);
                 }
-                context.Season.Include(s => s.Episodes).Where(s=> !s.Episodes.Any()).ToList().ForEach(season =>{
-                     context.Remove(season);
+                context.Season.Include(s => s.Episodes).Where(s => !s.Episodes.Any()).ToList().ForEach(season =>
+                {
+                    context.Remove(season);
                 });
 
-              
-               context.Show.Include(s => s.Seasons).Where(s=> !s.Seasons.Any()).ToList().ForEach(show =>{
-                     context.Remove(show);
+
+                context.Show.Include(s => s.Seasons).Where(s => !s.Seasons.Any()).ToList().ForEach(show =>
+                {
+                    context.Remove(show);
                 });
 
                 context.Remove(video);
@@ -80,9 +80,9 @@ class Library(string path)
     {
 
 
-        TmdbShow show = new TmdbShow();
+        TmdbShow show = new();
         int showTmdbId;
-        HttpClient httpClient = new HttpClient();
+        HttpClient httpClient = new();
 
         if (context.Video.Where(v => v.Filepath.Equals(mediaFile.Filepath)).ToList().IsNullOrEmpty())
         {
@@ -97,9 +97,9 @@ class Library(string path)
 
 
 
-                List<TmdbId> ids = JsonConvert.DeserializeObject<List<TmdbId>>(output);
+                List<TmdbId>? ids = JsonConvert.DeserializeObject<List<TmdbId>>(output);
 
-                if (!ids.IsNullOrEmpty())
+                if (!ids.IsNullOrEmpty() && ids != null)
                 {
                     showTmdbId = ids[0].id;
                     Console.WriteLine(" TV Show Id is: " + showTmdbId);
@@ -133,7 +133,7 @@ class Library(string path)
 
 
 
-                    Show curShow = context.Show.Include("Seasons").Where(show => show.TmdbId.Equals(showTmdbId)).ToList().FirstOrDefault();
+                    Show? curShow = context.Show.Include("Seasons").Where(show => show.TmdbId.Equals(showTmdbId)).ToList().FirstOrDefault();
                     if (curShow != null)
                     {
                         if (curShow.Seasons.Where(season => season.SeasonNumber.Equals(mediaFile.Season)).ToList().IsNullOrEmpty())
@@ -151,7 +151,8 @@ class Library(string path)
                                     SeasonNumber = season.season_number,
                                     Summary = season.overview,
                                     Poster = season.poster_path,
-                                    ShowId = curShow.Id
+                                    ShowId = curShow.Id,
+                                    Show = curShow
                                 };
 
 
@@ -164,7 +165,7 @@ class Library(string path)
 
 
 
-                    Season curSeason = context.Season.Include("Episodes").Where(season => season.Show.TmdbId.Equals(showTmdbId)).Where(season => season.SeasonNumber.Equals(mediaFile.Season)).ToList().FirstOrDefault();
+                    Season? curSeason = context.Season.Include("Episodes").Where(season => season.Show.TmdbId.Equals(showTmdbId)).Where(season => season.SeasonNumber.Equals(mediaFile.Season)).ToList().FirstOrDefault();
                     if (curSeason != null)
                     {
 
@@ -190,7 +191,8 @@ class Library(string path)
                                     {
                                         Filepath = mediaFile.Filepath
                                     },
-                                    SeasonId = curSeason.Id
+                                    SeasonId = curSeason.Id,
+                                    Season = curSeason
                                 };
 
 
@@ -216,7 +218,7 @@ class Library(string path)
         TmdbMovie movie = new TmdbMovie();
         HttpClient httpClient = new HttpClient();
         TmdbResult results = new TmdbResult();
-        List<TmdbId> ids = null!;
+        List<TmdbId>? ids = null!;
         HttpResponseMessage response;
 
 
@@ -254,7 +256,7 @@ class Library(string path)
 
             Console.WriteLine("out of loop");
 
-            if (!ids.IsNullOrEmpty())
+            if (ids != null)
             {
                 Console.WriteLine("Movie Id is: " + ids[0].id);
 

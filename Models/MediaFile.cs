@@ -4,7 +4,7 @@ namespace MvcMovie.Models;
 
 partial class MediaFile(string path)
 {
-    public string? Name { get; set; }
+    public string Name { get; set; } = Path.GetFileNameWithoutExtension(path);
     public string Filepath { get; set; } = path;
     public bool isMovie = true;
     public bool isShow = false;
@@ -51,7 +51,7 @@ partial class MediaFile(string path)
 
         if (matchYear.Success)
         {
-            int yearIndex = matchYear.Index == 0 ? 0 : matchYear.Index - 1; 
+            int yearIndex = matchYear.Index == 0 ? 0 : matchYear.Index - 1;
             this.Name = specialCharsRemoved[..yearIndex].Trim();
             return;
         }
@@ -69,7 +69,7 @@ partial class MediaFile(string path)
 
     [GeneratedRegex(@"([S][0-9]{2}[E][0-9]{2})", RegexOptions.IgnoreCase, "en-GB")]
     private static partial Regex SeasonEpisodeRegex();
-    
+
     [GeneratedRegex("[^a-zA-Z0-9 ]+", RegexOptions.Compiled)]
     private static partial Regex SpecialCharRegex();
 }

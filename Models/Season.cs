@@ -25,8 +25,6 @@ public class Season
     [InverseProperty("Season")]
     public ICollection<Episode> Episodes { get; set; } = new List<Episode>();
 
-    public int? ShowId { get; set; }
-    public Show? Show { get; set; }
-
-   
+    public required int ShowId { get; set; }
+    public required Show Show { get; set; }
 }

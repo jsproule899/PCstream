@@ -33,7 +33,7 @@ public class Episode
     [Required]
     public required Video Video { get; set; }
 
-    public int? SeasonId { get; set; } = null;
+    public required int SeasonId { get; set; }
 
-    public Season? Season { get; set; } = null;
+    public required Season Season { get; set; }
 }

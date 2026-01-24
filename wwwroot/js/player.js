@@ -369,10 +369,10 @@ function toggleNextEpisodeControls() {
 
 function autoPlayNextEpisode(delayInSeconds = 10) {
     if (nextEpisode) {
-        nextEpisode.children[0].focus();
+        nextEpisode.focus();
         nextEpisodeTimer.max = delayInSeconds;
         nextEpisodeTimeout = setTimeout(() => {
-            window.location.href = nextEpisode.children[0].href;
+            nextEpisode.click();
         }, delayInSeconds * 1000);
 
 

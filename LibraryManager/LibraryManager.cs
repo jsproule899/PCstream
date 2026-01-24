@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using MvcMovie.Data;
 
 namespace LibraryManager;
@@ -6,7 +5,6 @@ namespace LibraryManager;
 class Manager
 {
     public static List<Library> libraries = [];
-    private static WebApplication _App;
 
     public static void Add(string path)
     {
@@ -15,28 +13,12 @@ class Manager
         libraries.Add(lib);
     }
 
-    public static async Task Scan()
+    public static async Task Scan(MvcMovieContext dbContext)
     {
-        using (var scope = _App.Services.CreateScope())
+        foreach (Library lib in libraries)
         {
-            var services = scope.ServiceProvider;
-
-            MvcMovieContext context = new(
-                                     services.GetRequiredService<
-                                         DbContextOptions<MvcMovieContext>>());
-
-            foreach (Library lib in libraries)
-            {
-                lib.Scan(context);
-            }
-
+            lib.Scan(dbContext);
         }
-    }
-
-    public static void Initialise(WebApplication app)
-    {
-        _App = app;
-
     }
 
 }

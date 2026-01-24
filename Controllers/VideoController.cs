@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using MvcMovie.Data;
 using Microsoft.Net.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
-using System.Linq;
 using Mono.TextTemplating;
 using MvcMovie.Models;
 
@@ -35,14 +34,14 @@ namespace MvcMovie.Video
             else
             {
                 ViewData["Episode"] = episode;
-                var show = await _context.Show.Where(s => s.Id == episode.Season.ShowId).FirstOrDefaultAsync();
-                var season = await _context.Season.Where(s => s.Id == episode.SeasonId).FirstOrDefaultAsync();
+                var season = await _context.Season.Where(s => s.Id == episode.SeasonId).FirstOrDefaultAsync() ?? throw new Exception("Season not found for episode");
+                var show = await _context.Show.Where(s => s.Id == season.ShowId).FirstOrDefaultAsync() ?? throw new Exception("Show not found for season");
                 ViewData["Show"] = show;
                 ViewData["Season"] = season;
                 var nextEpisodeCurrentSeason = await _context.Episode.Include("Video").Where(e => e.SeasonId == episode.SeasonId).Where(e => e.EpisodeNumber > episode.EpisodeNumber).OrderBy(e => e.EpisodeNumber).FirstOrDefaultAsync();
                 Episode? NextEpisode = nextEpisodeCurrentSeason ?? await _context.Episode.Include("Video").Where(e => e.Season.ShowId == show.Id).Where(e => e.Season.SeasonNumber > season.SeasonNumber).OrderBy(e => e.Season.SeasonNumber).ThenBy(e => e.EpisodeNumber).FirstOrDefaultAsync();
                 Console.WriteLine("NextEpisode.Video: " + NextEpisode?.Video.Id);
-                ViewData["NextEpisode"] = NextEpisode;
+                ViewData["NextEpisode"] = NextEpisode ?? null;
             }
 
             if (video == null)
@@ -79,8 +78,8 @@ namespace MvcMovie.Video
             string? filename = string.Join("", video.Filepath.Split("\\").Last().SkipLast(4));
             Console.Write("Filename: " + filename);
 
-            string? vttSubs = Directory.GetFiles(parentFilepath, "*.vtt", SearchOption.AllDirectories).Where(s => s.ToLower().Contains(lang.ToLower())).Where(s => s.ToLower().Contains(filename.ToLower())).FirstOrDefault();
-            string? srtSubs = Directory.GetFiles(parentFilepath, "*.srt", SearchOption.AllDirectories).Where(s => s.ToLower().Contains(lang.ToLower())).Where(s => s.ToLower().Contains(filename.ToLower())).FirstOrDefault();
+            string? vttSubs = Directory.GetFiles(parentFilepath, "*.vtt", SearchOption.AllDirectories).Where(s => s.Contains(lang ?? "", StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault(s => s.Contains(filename, StringComparison.CurrentCultureIgnoreCase));
+            string? srtSubs = Directory.GetFiles(parentFilepath, "*.srt", SearchOption.AllDirectories).Where(s => s.Contains(lang ?? "", StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault(s => s.Contains(filename, StringComparison.CurrentCultureIgnoreCase));
 
             if (!vttSubs.IsNullOrEmpty())
             {
