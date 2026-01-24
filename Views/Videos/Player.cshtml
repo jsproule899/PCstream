@@ -165,36 +165,42 @@
     }
 
     .next-episode {
-        cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.5);
+        position: relative;
+        display: flex;
+        margin: 0px 0px 20px 20px;
         padding: 10px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
         border-radius: 5px;
-        margin: 0 0 0 20px;
+        font-weight: bold;
     }
 
-    .next-episode a {
-        color: white;
-        text-decoration: none;
-        font-weight: bold;
-        margin: 0px;
-        padding: 0px;
-    }
 
     #next-episode-timer {
+        -webkit-appearance: none;
+        top: 0;
+        left: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
         margin: 0px;
-        background: none;
+        background: transparent;
         padding: 0px;
+        z-index: -1;
     }
 
     #next-episode-timer::-webkit-progress-bar {
-        background-color: none;
-        border-radius: 7px;
+        background: none;
+        border-radius: 5px;
+        box-shadow: none;
     }
 
     #next-episode-timer::-webkit-progress-value {
-        background-color: white;
-        border-radius: 7px;
-        box-shadow: 1px 1px 5px 3px rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 5px;
+        transition: width 1s linear;
+        box-shadow: none;
     }
 
     .watch-credits {
@@ -214,9 +220,8 @@
         visibility: hidden;
         position: absolute;
         bottom: 5%;
-        right: 5%;
+        right: 2%;
         margin: 20px;
-        margin-bottom: 44px;
         z-index: 1000;
     }
 </style>
@@ -287,10 +292,11 @@
     {
         <div class="next-episode-controls">
             <button type="button" tabindex="0" onclick="watchCredits()" class="watch-credits">Watch Credits</button>
-            <div id="next-episode" class="next-episode">
-                <a tabindex=1 href="/Videos/Player/@(nextEpisode.Video.Id)"> ▶ Next Episode</a>
-                <progress id="next-episode-timer" value="0" max="10" class="w-100" style="height: 5px;" />
-            </div>
+            <button type="button" tabindex=1 id="next-episode" class="next-episode"
+                onclick="location.href='/Videos/Player/@(nextEpisode.Video.Id)'">
+                ▶ Next Episode
+                <progress id="next-episode-timer" value="0" max="10" class="w-100" />
+            </button>
 
         </div>
     }

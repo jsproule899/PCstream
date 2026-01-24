@@ -5,6 +5,7 @@ const playerControls = document.getElementById("video-controls");
 const progess = document.getElementById("progress-bar");
 const progessSlider = document.getElementById("progress-slider");
 const restart = document.getElementById("restart");
+const backButton = document.getElementById("back");
 const fullscreen = document.getElementById("fullscreen");
 const fullscreenIcon = document.getElementById("fullscreen-icon");
 const currentTime = document.getElementById("current-time");
@@ -113,16 +114,16 @@ video.addEventListener("progress", () => {
     saveTimestamp();
 
 });
+
 video.addEventListener("timeupdate", (event) => {
     let time = video.currentTime;
     let minutes = Math.floor(time / 60);
     let seconds = Math.floor(time - minutes * 60);
-    seconds < 10 ? seconds = "0" + seconds : seconds
-    let timeString = `${minutes}:${seconds}`;
+    let timeString = `${padTime(minutes)}:${padTime(seconds)}`;
     if (minutes > 60) {
         let hours = Math.floor(minutes / 60);
         minutes = Math.floor(minutes - hours * 60);
-        timeString = `${hours}:${minutes}:${seconds}`;
+        timeString = `${hours}:${padTime(minutes)}:${padTime(seconds)}`;
     }
 
 
@@ -132,14 +133,15 @@ video.addEventListener("timeupdate", (event) => {
         progessSlider.value = video.currentTime
     }
     progess.value = (video.currentTime / video.duration) * 100
+    let timeRemaining = video.duration - video.currentTime;
     if (
         !autoplayStarted &&
         !autoplayCancelled &&
-        video.duration - video.currentTime < 120
+        timeRemaining < 120
     ) {
         autoplayStarted = true;
-        showNextEpisode();
-        autoPlayNextEpisode();
+        toggleNextEpisodeControls();
+        autoPlayNextEpisode(timeRemaining > 30 ? timeRemaining - 30 : timeRemaining);
     }
 
 })
@@ -156,23 +158,28 @@ progessSlider.addEventListener("mouseup", () => {
     scrubbing = false;
 })
 
-video.addEventListener("ended", clearTimestamp);
+// video.addEventListener("ended", clearTimestamp);
 
 fullscreen.addEventListener("click", () => {
     toggleFullscreen()
 })
 
 
+
 document.addEventListener("keydown", (event) => {
     switch (event.key) {
+        case "MediaBack":
+        case "Back":
+        case "Backspace":
+            event.preventDefault();
+            backButton.click();
+            break;
         case "F": toggleFullscreen();
             break;
         case "MediaRewind":
-        case "ArrowLeft":
             skip("-", 30);
             break;
         case "MediaFastForward":
-        case "ArrowRight":
             skip("+", 30);
             break;
         case "MediaPlay":
@@ -181,11 +188,13 @@ document.addEventListener("keydown", (event) => {
         case " ":
             playPause();
             break;
+        case "ArrowLeft":
         case "ArrowUp": {
             event.preventDefault();
             DispatchTab("-")
         }
             break;
+        case "ArrowRight":
         case "ArrowDown": {
             event.preventDefault();
             DispatchTab("+")
@@ -206,6 +215,9 @@ fastforward.addEventListener("click", () => skip("+", 30))
 
 playPauseButton.addEventListener("click", playPause)
 
+function padTime(time) {
+    return time < 10 ? "0" + time : time
+}
 
 function playPause() {
     if (video.paused) {
@@ -266,7 +278,13 @@ captionsBtn.addEventListener("blur", () => {
 
 });
 
-restart.addEventListener("click", clearTimestamp);
+restart.addEventListener("click", () => {
+    clearTimestamp();
+    watchCredits();
+    autoplayCancelled = false;
+    autoplayStarted = false;
+    toggleNextEpisodeControls();
+});
 let indexOfId = video.src.lastIndexOf('/');
 const video_id = video.src.substring(indexOfId + 1);
 
@@ -341,26 +359,27 @@ function clearTimestamp() {
     video.currentTime = 0
 }
 
-function showNextEpisode() {
+function toggleNextEpisodeControls() {
     if (nextEpisode) {
         nextEpisodeControls = document.querySelector(".next-episode-controls");
-        nextEpisodeControls.style.visibility = "visible";
+        let nextEpisodeVisible = nextEpisodeControls.style.visibility == "visible"
+        nextEpisodeControls.style.visibility = nextEpisodeVisible ? "hidden" : "visible";
     }
 }
 
-function autoPlayNextEpisode() {
+function autoPlayNextEpisode(delayInSeconds = 10) {
     if (nextEpisode) {
         nextEpisode.children[0].focus();
+        nextEpisodeTimer.max = delayInSeconds;
         nextEpisodeTimeout = setTimeout(() => {
             window.location.href = nextEpisode.children[0].href;
-        }, 10000);
+        }, delayInSeconds * 1000);
 
 
-
-        let timeLeft = 10;
+        let timeLeft = delayInSeconds;
         nextEpisodeTimerInterval = setInterval(() => {
             timeLeft--;
-            nextEpisodeTimer.value = 10 - timeLeft;
+            nextEpisodeTimer.value = delayInSeconds - timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(nextEpisodeTimerInterval);
             }
