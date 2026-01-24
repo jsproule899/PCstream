@@ -233,24 +233,25 @@
     <track label="French" kind="subtitles" id="subtitles" srclang="fr" src="/Videos/Subtitles/@Model.Id/Fr" />
     <track label="Spanish" kind="subtitles" id="subtitles" srclang="es" src="/Videos/Subtitles/@Model.Id/Sp" />
     </video>
-    <div id="video-controls" class="" data-state="shown" tabindex="-1">
+    <div id="video-controls" class="" data-state="shown">
         <div id="top-controls">
             @if (episode != null)
             {
                 <button id="back" onclick="location.href='/Shows/@(episode.Season.ShowId)/Season/@(episode.SeasonNumber)'"
-                    class="playerNav">
+                    class="playerNav" tabindex="0">
                     <i class="fa-solid fa-arrow-left m-2"></i>
                     Back
                 </button>
             }
             else
             {
-                <button id="back" onclick="history.back()" class="playerNav">
+                <button id="back" onclick="history.back()" class="playerNav" tabindex="0">
                     <i class="fa-solid fa-arrow-left m-2"></i>
                     Back
                 </button>
             }
-            <button id="restart" class="playerNav"><i class="fa-solid fa-arrow-rotate-left m-2"></i>Restart</button>
+            <button id="restart" class="playerNav" tabindex="0"><i
+                    class="fa-solid fa-arrow-rotate-left m-2"></i>Restart</button>
             @if (episode != null)
             {
                 <h2 class="text-white mx-auto" id="video-title">Season @episode.SeasonNumber Episode @episode.EpisodeNumber
@@ -270,18 +271,19 @@
         <div id="bottom-controls">
             <span class="text-white m-3 lh-0.5" id="current-time"></span>
             <div class="w-100 move" id="progress">
-                <input type="range" min="0" max="100" value="0" class="slider  playerNav w-100" id="progress-slider">
-                <progress id="progress-bar" value="0" max="100" class="w-100" tabindex="-1"> </progress>
+                <input type="range" min="0" max="100" step="any" value="0" class="slider  playerNav w-100"
+                    id="progress-slider" tabindex="0">
+                <progress id="progress-bar" value="0" max="100" class="w-100"> </progress>
             </div>
             <span class="text-white m-3" id="duration"></span>
             <button id="captions-btn" class="playerNav">
                 <i id="captions-icon" class="fa-solid fa-closed-captioning"></i>
                 <ul id="captions-list"">
-                   <li class=" caption-li playerNav" tabindex=5 role="button">Off</li>
+                   <li class=" caption-li playerNav" tabindex="0" role="button">Off</li>
                 </ul>
 
             </button>
-            <button id="fullscreen" class="playerNav playerNav">
+            <button id="fullscreen" class="playerNav" tabindex="0">
                 <i id="fullscreen-icon" class="fa-solid fa-expand"></i>
             </button>
 
@@ -291,8 +293,8 @@
     @if (nextEpisode != null)
     {
         <div class="next-episode-controls">
-            <button type="button" tabindex="0" onclick="watchCredits()" class="watch-credits">Watch Credits</button>
-            <button type="button" tabindex=1 id="next-episode" class="next-episode"
+            <button type="button" tabindex="0" onclick="watchCredits()" class="watch-credits playerNav">Watch Credits</button>
+            <button type="button" tabindex="0" id="next-episode" class="next-episode playerNav"
                 onclick="location.href='/Videos/Player/@(nextEpisode.Video.Id)'">
                 ▶ Next Episode
                 <progress id="next-episode-timer" value="0" max="10" class="w-100" />

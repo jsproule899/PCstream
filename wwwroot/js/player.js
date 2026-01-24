@@ -26,12 +26,13 @@ let autoplayStarted = false;
 let autoplayCancelled = false;
 let nextEpisodeTimeout = null;
 let nextEpisodeTimerInterval = null;
-let currentTabIndex = 5;
+let currentTabIndex = captionTracks.length + 1;
+captionsList.firstChild.tabIndex = currentTabIndex;
 captionTracks.forEach(track => {
     let node = document.createElement("li");
     node.classList.add("caption-li");
     node.classList.add("playerNav");
-    currentTabIndex++;
+    currentTabIndex--;
     node.tabIndex = currentTabIndex;
     node.role = "button";
     let textnode = document.createTextNode(track.label);
@@ -43,7 +44,10 @@ const captionsListItems = document.querySelectorAll(".caption-li")
 let currentSubs = "English";
 
 captionsListItems.forEach(li => {
-    li.addEventListener("click", () => changeSub(li))
+    li.addEventListener("click", () => {
+        changeSub(li);
+        captionsList.style.visibility = "hidden";
+    })
 })
 
 function changeSub(li) {
@@ -79,34 +83,36 @@ function highlightSub() {
 highlightSub()
 
 let scrubbing = false;
-const navElements = document.querySelectorAll(".playerNav")
-const DispatchTab = (direction) => {
 
-    // If the current focused element is a -1 then we wont find the index in the elements list, got to the start
-    if (document.activeElement.tabIndex === -1) {
-        navElements[0].focus();
+const navElements = document.querySelectorAll(".playerNav");
+
+const DispatchTab = (direction) => {
+    // Only visible & focusable elements
+    const visibleElements = Array.from(navElements).filter(el => {
+        const style = window.getComputedStyle(el);
+        return style.visibility !== "hidden" && style.display !== "none" && !el.disabled && typeof el.focus === "function";
+    });
+
+    if (visibleElements.length === 0) {
+        console.warn("No visible focusable nav elements.");
         return;
     }
 
-    for (i = 0; i < navElements.length; i++) {
-        if (navElements[i] == document.activeElement) {
-            currentIndex = i;
-            break;
-        }
-    }
+    // Find currently focused element in visible list
+    let currentIndex = visibleElements.indexOf(document.activeElement);
+    if (currentIndex === -1) currentIndex = 0;
 
-    // get the next element in the list ("%" will loop the index around to 0)
-    if (direction == "+") {
-        var nextIndex = (currentIndex + 1) % navElements.length;
-    } else {
-        var nextIndex = (currentIndex) - 1
-    }
+    // Calculate next index with wrap-around
+    const nextIndex = direction === "+"
+        ? (currentIndex + 1) % visibleElements.length
+        : (currentIndex - 1 + visibleElements.length) % visibleElements.length;
 
-    if (nextIndex < 0)
-        nextIndex = navElements.length - 1;
+    // Focus safely
+    visibleElements[nextIndex].focus({ preventScroll: true });
+};
 
-    navElements[nextIndex].focus();
-}
+
+
 
 video.addEventListener("loadeddata", loadTimestamp);
 video.addEventListener("progress", () => {
@@ -270,12 +276,15 @@ document.addEventListener('touchstart', function () {
 
 captionsBtn.addEventListener("click", () => {
     captionsList.style.visibility = (captionsList.style.visibility == "hidden") ? "visible" : "hidden";
+    captionsList.lastChild.focus();
 });
-captionsBtn.addEventListener("blur", () => {
-    setTimeout(() => {
-        captionsList.style.visibility = "hidden";
-    }, 500)
 
+captionsList.addEventListener("blur", (e) => {
+    if (e.relatedTarget === null) {
+        setTimeout(() => {
+            captionsList.style.visibility = "hidden";
+        }, 500)
+    }
 });
 
 restart.addEventListener("click", () => {
@@ -283,7 +292,9 @@ restart.addEventListener("click", () => {
     watchCredits();
     autoplayCancelled = false;
     autoplayStarted = false;
-    toggleNextEpisodeControls();
+    if (nextEpisodeControls.style.visibility == "visible") {
+        toggleNextEpisodeControls();
+    }
 });
 let indexOfId = video.src.lastIndexOf('/');
 const video_id = video.src.substring(indexOfId + 1);

@@ -4,11 +4,13 @@ using MvcMovie.Data;
 
 namespace MvcMovie.Controllers;
 
-public class LibraryController(MvcMovieContext DbContext) : Controller
+public class LibraryController(Manager manager) : Controller
 {
+    private readonly Manager _manager = manager;
+
     public async Task<IActionResult> Rescan()
     {
-        await Manager.Scan(DbContext);
+        await _manager.Scan();
         return Redirect("/");
     }
 }

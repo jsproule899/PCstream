@@ -25,11 +25,11 @@ namespace MvcMovie.Controllers
                 return Problem("Entity set 'MvcMovieContext.Show' is null.");
             }
 
-            var shows = from s in _context.Show select s;
+            IQueryable<Models.Show> shows = from s in _context.Show orderby s.Title select s;
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                shows = shows.Where(s => s.Title!.ToLower().Contains(searchString.ToLower()));
+                shows = shows.Where(s => s.Title!.Contains(searchString, StringComparison.CurrentCultureIgnoreCase));
             }
             return View(await shows.ToListAsync());
         }

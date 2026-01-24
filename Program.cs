@@ -11,14 +11,35 @@ builder.Services.AddDbContext<MvcMovieContext>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<Manager>();
 
 var app = builder.Build();
 
-using var db = new MvcMovieContext(app.Services.GetRequiredService<DbContextOptions<MvcMovieContext>>());
-db.Database.Migrate();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
 
-Manager.Add(libraryDirectory);
-await Manager.Scan(db);
+    try
+    {
+        var context = services.GetRequiredService<MvcMovieContext>();
+        context.Database.Migrate();
+
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred creating the DB.");
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var manager = scope.ServiceProvider.GetRequiredService<Manager>();
+    manager.Add(libraryDirectory);
+    await manager.Scan();
+
+}
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

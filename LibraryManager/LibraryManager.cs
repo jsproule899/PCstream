@@ -1,25 +1,27 @@
+using System.Threading.Tasks;
 using MvcMovie.Data;
 
 namespace LibraryManager;
 
-class Manager
+public class Manager
 {
-    public static List<Library> libraries = [];
-
-    public static void Add(string path)
+    private readonly MvcMovieContext _context;
+    public List<Library> Libraries { get; } = [];
+    public Manager(MvcMovieContext context)
     {
-        Library lib = new(path);
-
-        libraries.Add(lib);
+        _context = context;
     }
 
-    public static async Task Scan(MvcMovieContext dbContext)
+    public void Add(string path)
     {
-        foreach (Library lib in libraries)
+        Libraries.Add(new Library(path));
+    }
+
+    public async Task Scan()
+    {
+        foreach (var lib in Libraries)
         {
-            lib.Scan(dbContext);
+            await lib.Scan(_context);
         }
     }
-
 }
-

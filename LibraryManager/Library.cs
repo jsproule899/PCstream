@@ -8,12 +8,12 @@ using Newtonsoft.Json.Linq;
 
 namespace LibraryManager;
 
-class Library(string path)
+public class Library(string path)
 {
     string Path { get; set; } = path;
     static readonly HttpClient client = new();
 
-    public async void Scan(MvcMovieContext context)
+    public async Task Scan(MvcMovieContext context)
     {
         string[] mp4Files = Directory.GetFiles(Path, "*.mp4", SearchOption.AllDirectories);
         string[] mkvFiles = Directory.GetFiles(Path, "*.mkv", SearchOption.AllDirectories);
