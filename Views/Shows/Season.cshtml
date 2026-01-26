@@ -34,15 +34,25 @@
         box-shadow: 0px 0px 5px royalblue;
     }
 
-    progress::-moz-progress-bar {
-        /* style rules */
+    #back {
+        width: fit-content;
+        border: none;
+        color: white;
+        background: none;
+        font-size: large;
+        font-weight: bold;
+        margin-top: 1rem;
+
+    }
     }
 </style>
+<script src="https://kit.fontawesome.com/efe6a73c66.js" crossorigin="anonymous"></script>
 
 <div class="row">
     <div class="col-2 text-center">
         <img src="https://image.tmdb.org/t/p/original@(Model.Poster)" alt="" style="width: 100%;">
     </div>
+
 
     <div class="col-md-10">
         <h1 style="width: fit-content; display: inline;">@Model.Title</h1>
@@ -59,8 +69,10 @@
         <p>@(Model.Summary)</p>
     </div>
 
-
-
+    <button id="back" onclick="location.href='/Shows/@(Model.ShowId)'" class="" tabindex="0">
+        <i class="fa-solid fa-arrow-left m-2"></i>
+        Back to Seasons
+    </button>
 
     <hr />
 
@@ -79,7 +91,8 @@
                             </svg>
                         </div>
                         <small class="card-subtitle text-center text-muted"
-                            style="position: absolute; z-index: 1; bottom: 10px; left:10px ">@(episode.Runtime) mins</small>
+                            style="position: absolute; z-index: 1; bottom: 10px; left:10px ">@(episode.Runtime)
+                            mins</small>
                         <progress id="progress-bar-@(episode.Video.Id)" max="100" value="0" class="episode-progress"
                             data-runtime="@episode.Runtime" data-progress="@episode.Video.LastWatchedTimestamp"></progress>
                         <div style=" position: absolute; z-index: 1; bottom: 10px; right:10px ">
