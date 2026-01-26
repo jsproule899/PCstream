@@ -5,7 +5,7 @@
     ViewData["Title"] = "Home";
     List<RecentlyWatched> recentlyWatched = ViewData["RecentlyWatched"] as List<RecentlyWatched> ?? [];
     List<Movie> movies = ViewData["RecentlyAddedMovies"] as List<Movie> ?? [];
-    List<Season> seasons = ViewData["RecentlyAddedSeaons"] as List<Season> ?? [];
+    List<Episode> episodes = ViewData["RecentlyAddedEpisode"] as List<Episode> ?? [];
 }
 
 <style>
@@ -77,7 +77,7 @@
                     </div>
                 </a>
                 <p class="card-title text-center">@recent.Movie.Title <small
-                        class="card-subtitle text-center text-muted">(@recent.Movie.ReleaseDate.Year))</small></p>
+                        class="card-subtitle text-center text-muted">(@recent.Movie.ReleaseDate.Year)</small></p>
             }
             else if (recent.Episode != null)
             {
@@ -109,8 +109,7 @@
                         </div>
                     </div>
                 </a>
-                <p class="card-title text-center">@recent.Episode.Title <small class="card-subtitle text-center text-muted">(S
-                        @recent.Episode.SeasonNumber E @recent.Episode.EpisodeNumber) </small></p>
+                <p class="card-title text-center">@recent.Episode.Title <small class="card-subtitle text-center text-muted">(@string.Format("S{0:00}", recent.Episode.SeasonNumber) @string.Format("E{0:00}", recent.Episode.EpisodeNumber))</small></p>
             }
         </div>
 }
@@ -149,7 +148,7 @@
                 </a>
 
                 <p class="card-title text-center">@m.Title <small
-                        class="card-subtitle text-center text-muted">(@m.ReleaseDate.Year))</small></p>
+                        class="card-subtitle text-center text-muted">(@m.ReleaseDate.Year)</small></p>
                 <p class="card-subtitle text-center text-muted">@((int)m.Runtime / 60) Hr @(m.Runtime % 60)
                     mins</p>
             </div>
@@ -159,11 +158,11 @@
 
     <div class="row g-3">
         <h2 class="mb-0 mt-4">Recently Added Shows</h2>
-        @foreach (Season s in seasons)
+        @foreach (Episode e in episodes)
         {
             <div class="col-2">
-                <a asp-controller="Shows" asp-action="Season" asp-route-id="@s.Show.Id"
-                    asp-route-seasonNum="@s.SeasonNumber">
+                <a asp-controller="Shows" asp-action="Season" asp-route-id="@e.Season.Show.Id"
+                    asp-route-seasonNum="@e.SeasonNumber">
                     <div class="card shadow-sm" style="aspect-ratio: 2/3; border-radius:5px;">
                         <div class="play-button-container">
                             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="grey"
@@ -174,7 +173,7 @@
                         </div>
 
                         <div style=" position: absolute; z-index: 1; bottom: 10px; right:10px ">
-                            @for (int i = 1; i < s.Rating / 2; i++)
+                            @for (int i = 1; i < e.Rating / 2; i++)
                             {
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gold"
                                     class="bi bi-star-fill" viewBox="0 0 16 16">
@@ -184,13 +183,14 @@
                             }
                         </div>
                         <div class="card-body "
-                            style="contain: strict; height: 100%; width: 100%; background-image: url(https://image.tmdb.org/t/p/original@(s.Poster)); background-size: cover; border-radius: 5px;">
+                            style="contain: strict; height: 100%; width: 100%; background-image: url(https://image.tmdb.org/t/p/original@(e.Season.Poster)); background-size: cover; border-radius: 5px;">
                         </div>
                     </div>
                 </a>
 
-                <p class="card-title text-center">@s.Show.Title <small
-                        class="card-subtitle text-center text-muted">(@s.Title)</small></p>
+                <p class="card-title text-center">
+                    @e.Season.Show.Title <small class="card-subtitle text-center text-muted">(@string.Format("S{0:00}", e.SeasonNumber) @string.Format("E{0:00}", e.EpisodeNumber))</small>
+                </p>
 
             </div>
         }

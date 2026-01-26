@@ -39,15 +39,16 @@ public class HomeController(ILogger<HomeController> logger, MvcMovieContext cont
 
         ViewData["RecentlyAddedMovies"] = await _context.Movie.Include(m => m.Video).OrderByDescending(m => m.Id).Take(5).ToListAsync();
 
-        var latestSeasonIds = await _context.Season
-        .GroupBy(s => s.ShowId)
-        .Select(g => g.Max(s => s.Id))
+        var latestEpisodeIds = await _context.Episode.Include(e => e.Season)
+        .GroupBy(e => e.Season.ShowId)
+        .Select(g => g.OrderByDescending(e => e.Season.SeasonNumber).ThenByDescending(e => e.EpisodeNumber).Select(e => e.Id).First())
         .ToListAsync();
 
-        ViewData["RecentlyAddedSeaons"] = await _context.Season
-        .Where(s => latestSeasonIds.Contains(s.Id))
-        .Include(s => s.Show)
-        .OrderByDescending(s => s.Id)
+        ViewData["RecentlyAddedEpisode"] = await _context.Episode
+        .Where(e => latestEpisodeIds.Contains(e.Id))
+        .Include(e => e.Season)
+        .ThenInclude(s => s.Show)
+        .OrderByDescending(e => e.Id)
         .Take(5)
         .ToListAsync();
 
