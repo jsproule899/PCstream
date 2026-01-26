@@ -19,6 +19,8 @@ namespace MvcMovie.Data
         public DbSet<MvcMovie.Models.Season> Season { get; set; } = default!;
 
         public DbSet<MvcMovie.Models.Episode> Episode { get; set; } = default!;
+
+        public DbSet<MvcMovie.Models.RecentlyWatched> RecentlyWatched { get; set; } = default!;
         
     }
 }

@@ -81,7 +81,7 @@
                         <small class="card-subtitle text-center text-muted"
                             style="position: absolute; z-index: 1; bottom: 10px; left:10px ">@(episode.Runtime) mins</small>
                         <progress id="progress-bar-@(episode.Video.Id)" max="100" value="0" class="episode-progress"
-                            data-runtime="@episode.Runtime"></progress>
+                            data-runtime="@episode.Runtime" data-progress="@episode.Video.LastWatchedTimestamp"></progress>
                         <div style=" position: absolute; z-index: 1; bottom: 10px; right:10px ">
                             @for (int i = 1; i < episode.Rating / 2; i++)
                             {
@@ -109,34 +109,4 @@
         }
     </div>
 
- <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const progressBars = document.querySelectorAll("progress");
-
-    for (const bar of progressBars) {
-        // Faster than split()
-        const id = bar.id.substring(bar.id.lastIndexOf("-") + 1);
-
-        const stored = localStorage.getItem(id + "_timestamp");
-        if (!stored) {
-            bar.style.visibility = "hidden";
-            continue;
-        }
-
-        const runtime = Number(bar.dataset.runtime);
-        if (!runtime) {
-            bar.style.visibility = "hidden";
-            continue;
-        }
-
-        const value = Math.floor((stored / 60 / runtime) * 100);
-
-        if (value > 0) {
-            bar.value = value;
-            bar.style.visibility = "visible";
-        } else {
-            bar.style.visibility = "hidden";
-        }
-    }
-});
-</script>
+    <script src="/js/showProgress.js" />

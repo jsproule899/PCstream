@@ -215,9 +215,9 @@ public class Library(string path)
 
     private static async Task AddMovie(MvcMovieContext context, MediaFile mediaFile)
     {
-        TmdbMovie movie = new TmdbMovie();
-        HttpClient httpClient = new HttpClient();
-        TmdbResult results = new TmdbResult();
+        TmdbMovie movie = new();
+        HttpClient httpClient = new();
+        TmdbResult results = new();
         List<TmdbId>? ids = null!;
         HttpResponseMessage response;
 
@@ -228,7 +228,7 @@ public class Library(string path)
             string query = mediaFile.Name;
             while (results.results.IsNullOrEmpty() && !query.Equals(string.Empty))
             {
-                int lastTokenIndex = query.LastIndexOf(" ");
+                int lastTokenIndex = query.LastIndexOf(' ');
                 response = await client.GetAsync("https://api.themoviedb.org/3/search/movie?api_key=d0f5aebbfd72d42d2d77d80d3997aefd&query=" + query);
                 if (response.IsSuccessStatusCode)
                 {
@@ -242,7 +242,7 @@ public class Library(string path)
                     else if (lastTokenIndex > 0)
                     {
 
-                        query = query.Substring(0, lastTokenIndex).Trim();
+                        query = query[..lastTokenIndex].Trim();
                     }
                     else if (lastTokenIndex < 0)
                     {

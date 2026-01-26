@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MvcMovie.Controllers
 {
-
+    [Route("Shows")]
     public class ShowsController : Controller
     {
 
@@ -16,7 +16,7 @@ namespace MvcMovie.Controllers
         }
 
 
-        //GET Shows
+        [HttpGet]
         public async Task<IActionResult> Index(string searchString)
         {
 
@@ -36,7 +36,7 @@ namespace MvcMovie.Controllers
 
 
 
-        // GET: Show/5
+        [HttpGet("{id}")]
         public async Task<IActionResult> Details(int? id)
         {
 
@@ -62,7 +62,7 @@ namespace MvcMovie.Controllers
             return View(show);
         }
 
-        //GET: Show/5/Season/1
+        [HttpGet("{id}/Season/{seasonNum}")]
         public async Task<IActionResult> Season(int? id, int? seasonNum)
         {
 

@@ -342,6 +342,16 @@ function toggleFullscreen() {
 function saveTimestamp() {
     if (video.currentTime == 0) return;
     localStorage.setItem(video_id + "_timestamp", video.currentTime);
+    fetch(`/Videos/UpdateWatchHistory/${video_id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            currentTime: video.currentTime
+        })
+    }
+    );
 
 }
 
@@ -359,8 +369,13 @@ function loadTimestamp() {
         timeString = `${hours}:${minutes}:${seconds}`;
     }
     duration.innerHTML = timeString;
+    let localTimestamp = localStorage.getItem(video_id + "_timestamp")
+    if (localTimestamp && video.dataset.timestamp == "0")  {
+        video.dataset.timestamp = localTimestamp;
+    }
 
-    let timestamp = localStorage.getItem(video_id + "_timestamp");
+    let timestamp = video.dataset.timestamp;
+    console.log("Loaded timestamp:", timestamp);
     if (!timestamp) return;
     video.currentTime = timestamp;
 }
@@ -368,6 +383,17 @@ function loadTimestamp() {
 function clearTimestamp() {
     localStorage.removeItem(video_id + "_timestamp")
     video.currentTime = 0
+
+    fetch(`/Videos/UpdateWatchHistory/${video_id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            currentTime: video.currentTime
+        })
+    }
+    );
 }
 
 function toggleNextEpisodeControls() {
@@ -410,3 +436,17 @@ function watchCredits() {
 
     nextEpisodeTimer.value = 0;
 }
+
+window.addEventListener("beforeunload", () => {
+
+    saveTimestamp();
+    const data = new Blob(
+        [JSON.stringify({ currentTime: video.currentTime })],
+        { type: "application/json" }
+    );
+
+    navigator.sendBeacon(
+        `/Videos/UpdateWatchHistory/${video_id}`,
+        data
+    );
+});

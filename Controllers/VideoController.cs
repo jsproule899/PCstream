@@ -5,10 +5,13 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
 using Mono.TextTemplating;
 using MvcMovie.Models;
+using System.ComponentModel;
+using Microsoft.Identity.Client;
 
 
 namespace MvcMovie.Video
 {
+    
     public class VideosController : Controller
     {
         private readonly MvcMovieContext _context;
@@ -25,15 +28,53 @@ namespace MvcMovie.Video
                 return NotFound();
             }
 
-            var video = await _context.Video.FirstOrDefaultAsync(v => v.Id == id);
-            var episode = await _context.Episode.Include("Season").Where(e => e.Video.Id == id).FirstOrDefaultAsync();
+            Models.Video? video = await _context.Video.FirstOrDefaultAsync(v => v.Id == id);
+            Episode? episode = await _context.Episode.Include("Season").Where(e => e.Video.Id == id).FirstOrDefaultAsync();
             if (episode == null)
             {
                 ViewData["NextEpisode"] = null;
+                Movie? movie = await _context.Movie.Where(m => m.Video.Id == id).FirstOrDefaultAsync();
+                if (movie != null)
+                {
+                    ViewData["Movie"] = movie;
+                    RecentlyWatched? hasRecentlyWatched = _context.RecentlyWatched.Where(rw => rw.Movie == movie).FirstOrDefault();
+                    if (hasRecentlyWatched == null)
+                    {
+                        _context.RecentlyWatched.Add(new RecentlyWatched
+                        {
+                            Movie = movie,
+                            WatchedAt = DateTime.Now
+                        });
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        hasRecentlyWatched.WatchedAt = DateTime.Now;
+                        _context.Update(hasRecentlyWatched);
+                        _context.SaveChanges();
+                    }
+                }
             }
             else
             {
                 ViewData["Episode"] = episode;
+                RecentlyWatched? hasRecentlyWatched = _context.RecentlyWatched.Where(rw => rw.Episode == episode).FirstOrDefault();
+                if (hasRecentlyWatched == null)
+                {
+                    Console.WriteLine("Adding to recently watched: EpisodeId " + episode.Id);
+                    _context.RecentlyWatched.Add(new RecentlyWatched
+                    {
+                        Episode = episode,
+                        WatchedAt = DateTime.Now
+                    });
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    hasRecentlyWatched.WatchedAt = DateTime.Now;
+                    _context.Update(hasRecentlyWatched);
+                    _context.SaveChanges();
+                }
                 var season = await _context.Season.Where(s => s.Id == episode.SeasonId).FirstOrDefaultAsync() ?? throw new Exception("Season not found for episode");
                 var show = await _context.Show.Where(s => s.Id == season.ShowId).FirstOrDefaultAsync() ?? throw new Exception("Show not found for season");
                 ViewData["Show"] = show;
@@ -169,6 +210,22 @@ namespace MvcMovie.Video
 
         }
 
+[HttpPost]
+        public async Task<IActionResult> UpdateWatchHistory(int id, [FromBody] WatchDto dto)
+        {
+            var video =  _context.Video.Where(v => v.Id == id).FirstOrDefault();
+            if (video == null)
+            {
+                return NotFound();
+            }
+
+            video.LastWatchedTimestamp = dto.CurrentTime;
+            _context.Update(video);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
         struct RangeItem
         {
 
@@ -181,6 +238,11 @@ namespace MvcMovie.Video
             }
             public long? From;
             public long? To;
+        }
+
+        public class WatchDto
+        {
+            public float CurrentTime { get; set; }
         }
     }
 }

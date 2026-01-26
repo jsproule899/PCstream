@@ -78,24 +78,4 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapControllerRoute(
-    name: "Movies",
-    pattern: "{controller=Movies}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
-    name: "Library",
-    pattern: "{controller=Library}/{action=Rescan}");
-
-app.MapControllerRoute(
-    name: "Shows",
-    pattern: "{controller=Shows}/{id?}/{action}/{seasonNum?}");
-
-app.MapControllerRoute(
-    name: "Videos",
-    pattern: "{controller=Video}/{action=Player}/{id?}");
-
-app.MapControllerRoute(
-    name: "Videos",
-    pattern: "{controller=Video}/{action=Subtitles}/{id?}/{lang?}");
-
 app.Run();

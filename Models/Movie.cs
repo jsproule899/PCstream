@@ -26,7 +26,7 @@ public class Movie
 
       
     [Required]
-    public double? Runtime {get; set;}
+    public double Runtime {get; set;} = 0;
 
      
     public string? Poster {get; set;}
@@ -35,5 +35,5 @@ public class Movie
     public string? Summary {get; set;}
 
     
-    public Video? Video {get; set;}
+    public required Video Video {get; set;}
 }

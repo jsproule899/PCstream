@@ -11,5 +11,7 @@ public class Video
     [Required]
     public required string Filepath { get; set; }
 
+    public float LastWatchedTimestamp { get; set; } = 0;
+
 
 }

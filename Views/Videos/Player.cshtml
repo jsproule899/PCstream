@@ -228,7 +228,7 @@
 
 <div class="text-center" id="player-container" style="background-color: black; position:static;">
     <video id="video" style="display:flex; height: 100dvh; width: 100vw; position: fixed; background-color: black;"
-        autoplay disableRemotePlayback preload="metadata" src="/Videos/Stream/@Model.Id" tabindex="-1" />
+        autoplay disableRemotePlayback preload="metadata" src="/Videos/Stream/@Model.Id" tabindex="-1" data-timestamp=@Model.LastWatchedTimestamp />
     <track label="English" kind="subtitles" id="subtitles" srclang="en" src="/Videos/Subtitles/@Model.Id/Eng" default />
     <track label="French" kind="subtitles" id="subtitles" srclang="fr" src="/Videos/Subtitles/@Model.Id/Fr" />
     <track label="Spanish" kind="subtitles" id="subtitles" srclang="es" src="/Videos/Subtitles/@Model.Id/Sp" />

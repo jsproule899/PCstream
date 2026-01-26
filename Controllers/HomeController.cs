@@ -24,7 +24,23 @@ public class HomeController(ILogger<HomeController> logger, MvcMovieContext cont
         {
             movies = movies.Where(s => s.Title!.ToLower().Contains(searchString.ToLower()));
         }
-        return View(await movies.Include("Video").ToListAsync());
+
+        ViewData["RecentlyWatched"] = await _context.RecentlyWatched
+    .Include(rw => rw.Movie)
+        .ThenInclude(m => m.Video)
+    .Include(rw => rw.Episode)
+        .ThenInclude(e => e.Video)
+    .Include(rw => rw.Episode)
+        .ThenInclude(e => e.Season)
+    .OrderByDescending(rw => rw.WatchedAt)
+    .Take(5)
+    .ToListAsync() ?? [];
+
+
+        ViewData["RecentlyAddedMovies"] = await _context.Movie.Include(m=>m.Video).OrderByDescending(m => m.Id).Take(5).ToListAsync();
+        ViewData["RecentlyAddedSeaons"] = await _context.Season.Include(s=>s.Show).OrderByDescending(s => s.Id).Take(5).ToListAsync();
+
+        return View();
     }
 
     public IActionResult Privacy()

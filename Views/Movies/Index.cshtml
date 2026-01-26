@@ -4,6 +4,40 @@
     ViewData["Title"] = "Movies";
 }
 
+<style>
+    progress {
+        visibility: hidden;
+        position: absolute;
+        display: flex;
+        z-index: 1;
+        bottom: -0.5px;
+        left: 50%;
+        padding: 0px;
+        height: 2px;
+        margin: 0px;
+        width: 100%;
+        border-radius: 5px;
+        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+        transform: translate(-50%, 0%);
+    }
+
+    progress::-webkit-progress-bar {
+        background-color: transparent;
+        border-radius: 0px;
+    }
+
+    progress::-webkit-progress-value {
+        background-color: royalblue;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+        box-shadow: 0px 0px 5px royalblue;
+    }
+
+    progress::-moz-progress-bar {
+        /* style rules */
+    }
+</style>
+
 <h1>Movies</h1>
 
 
@@ -12,8 +46,8 @@
     {
         <div class="col">
             <a asp-controller="Videos" asp-action="Player" asp-route-id="@item.Video.Id">
-                <div class="card shadow-sm " style="aspect-ratio: 2/3;">
-                    <div class="play-button-container">
+                <div class="card shadow-sm " style="aspect-ratio: 2/3; border-radius: 5px;">
+                    <div class="play-button-container" style="border-radius: 5px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="grey"
                             class="bi bi-play-circle-fill play-button" viewBox="0 0 16 16">
                             <path
@@ -31,21 +65,21 @@
                             </svg>
                         }
                     </div>
+                    <progress id="progress-bar-@(item.Video.Id)" max="100" value="0" class="episode-progress"
+                        data-runtime="@item.Runtime" data-progress="@item.Video.LastWatchedTimestamp"></progress>
                     <div class="card-body "
-                        style="contain: strict; height: 100%; width: 100%; background-image: url(https://image.tmdb.org/t/p/original@(item.Poster)); background-size: cover;">
+                        style="contain: strict; height: 100%; width: 100%; background-image: url(https://image.tmdb.org/t/p/original@(item.Poster)); background-size: cover; border-radius: 5px;">
                     </div>
                 </div>
             </a>
 
             <p class="card-title text-center">@Html.DisplayFor(modelItem => item.Title) <small
                     class="card-subtitle text-center text-muted">(@Html.DisplayFor(modelItem =>
-                item.ReleaseDate.Year))</small></p>
-            <p class="card-subtitle text-center text-muted">@((int)item.Runtime / 60) Hr @(item.Runtime % 60)
-                mins</p>
-        </div>
-    }
+                                    item.ReleaseDate.Year))</small></p>
+        <p class="card-subtitle text-center text-muted">@((int)item.Runtime / 60) Hr @(item.Runtime % 60)
+            mins</p>
+    </div>
+        }
 </div>
 
-<script>
-
-</script>
+<script src="/js/showProgress.js" />
