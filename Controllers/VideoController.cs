@@ -11,7 +11,7 @@ using Microsoft.Identity.Client;
 
 namespace MvcMovie.Video
 {
-    
+
     public class VideosController : Controller
     {
         private readonly MvcMovieContext _context;
@@ -29,7 +29,7 @@ namespace MvcMovie.Video
             }
 
             Models.Video? video = await _context.Video.FirstOrDefaultAsync(v => v.Id == id);
-            Episode? episode = await _context.Episode.Include("Season").Where(e => e.Video.Id == id).FirstOrDefaultAsync();
+            Episode? episode = await _context.Episode.Include(e => e.Season).ThenInclude(s => s.Show).Where(e => e.Video.Id == id).FirstOrDefaultAsync();
             if (episode == null)
             {
                 ViewData["NextEpisode"] = null;
@@ -58,7 +58,7 @@ namespace MvcMovie.Video
             else
             {
                 ViewData["Episode"] = episode;
-                RecentlyWatched? hasRecentlyWatched = _context.RecentlyWatched.Where(rw => rw.Episode == episode).FirstOrDefault();
+                RecentlyWatched? hasRecentlyWatched = _context.RecentlyWatched.Include(rw => rw.Episode).ThenInclude(e => e.Season).ThenInclude(s => s.Show).Where(rw => rw.Episode.Season.Show == episode.Season.Show).FirstOrDefault();
                 if (hasRecentlyWatched == null)
                 {
                     Console.WriteLine("Adding to recently watched: EpisodeId " + episode.Id);
@@ -71,6 +71,7 @@ namespace MvcMovie.Video
                 }
                 else
                 {
+                    hasRecentlyWatched.Episode = episode;
                     hasRecentlyWatched.WatchedAt = DateTime.Now;
                     _context.Update(hasRecentlyWatched);
                     _context.SaveChanges();
@@ -210,10 +211,10 @@ namespace MvcMovie.Video
 
         }
 
-[HttpPost]
+        [HttpPost]
         public async Task<IActionResult> UpdateWatchHistory(int id, [FromBody] WatchDto dto)
         {
-            var video =  _context.Video.Where(v => v.Id == id).FirstOrDefault();
+            var video = _context.Video.Where(v => v.Id == id).FirstOrDefault();
             if (video == null)
             {
                 return NotFound();

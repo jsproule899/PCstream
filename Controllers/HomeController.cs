@@ -26,19 +26,31 @@ public class HomeController(ILogger<HomeController> logger, MvcMovieContext cont
         }
 
         ViewData["RecentlyWatched"] = await _context.RecentlyWatched
-    .Include(rw => rw.Movie)
+        .Include(rw => rw.Movie)
         .ThenInclude(m => m.Video)
-    .Include(rw => rw.Episode)
+        .Include(rw => rw.Episode)
         .ThenInclude(e => e.Video)
-    .Include(rw => rw.Episode)
+        .Include(rw => rw.Episode)
         .ThenInclude(e => e.Season)
-    .OrderByDescending(rw => rw.WatchedAt)
-    .Take(5)
-    .ToListAsync() ?? [];
+        .OrderByDescending(rw => rw.WatchedAt)
+        .Take(5)
+        .ToListAsync() ?? [];
 
 
-        ViewData["RecentlyAddedMovies"] = await _context.Movie.Include(m=>m.Video).OrderByDescending(m => m.Id).Take(5).ToListAsync();
-        ViewData["RecentlyAddedSeaons"] = await _context.Season.Include(s=>s.Show).OrderByDescending(s => s.Id).Take(5).ToListAsync();
+        ViewData["RecentlyAddedMovies"] = await _context.Movie.Include(m => m.Video).OrderByDescending(m => m.Id).Take(5).ToListAsync();
+
+        var latestSeasonIds = await _context.Season
+        .GroupBy(s => s.ShowId)
+        .Select(g => g.Max(s => s.Id))
+        .ToListAsync();
+
+        ViewData["RecentlyAddedSeaons"] = await _context.Season
+        .Where(s => latestSeasonIds.Contains(s.Id))
+        .Include(s => s.Show)
+        .OrderByDescending(s => s.Id)
+        .Take(5)
+        .ToListAsync();
+
 
         return View();
     }
