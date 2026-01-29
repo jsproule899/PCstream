@@ -12,6 +12,7 @@ builder.Services.AddDbContext<MvcMovieContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<Manager>();
+builder.Services.AddSingleton<LibraryRegistry>();
 
 var app = builder.Build();
 
@@ -34,10 +35,11 @@ using (var scope = app.Services.CreateScope())
 
 using (var scope = app.Services.CreateScope())
 {
+    var registry = scope.ServiceProvider.GetRequiredService<LibraryRegistry>();
     var manager = scope.ServiceProvider.GetRequiredService<Manager>();
-    manager.Add(libraryDirectory);
-    await manager.Scan();
 
+    registry.Add(new Library(libraryDirectory));
+    await manager.Scan();
 }
 
 

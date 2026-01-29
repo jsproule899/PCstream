@@ -5,14 +5,9 @@ using MvcMovie.Models;
 
 namespace MvcMovie.Controllers
 {
-    public class MoviesController : Controller
+    public class MoviesController(MvcMovieContext context) : Controller
     {
-        private readonly MvcMovieContext _context;
-
-        public MoviesController(MvcMovieContext context)
-        {
-            _context = context;
-        }
+        private readonly MvcMovieContext _context = context;
 
         // GET: Movies
         public async Task<IActionResult> Index(string searchString)
@@ -22,7 +17,7 @@ namespace MvcMovie.Controllers
                 return Problem("Entity set 'MvcMovieContext.Movie' is null.");
             }
 
-            var movies = from m in _context.Movie select m;
+            IQueryable<Movie> movies = from m in _context.Movie orderby m.Title select m;
 
             if (!String.IsNullOrEmpty(searchString))
             {

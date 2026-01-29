@@ -3,23 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using MvcMovie.Data;
 using Microsoft.Net.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
-using Mono.TextTemplating;
 using MvcMovie.Models;
-using System.ComponentModel;
-using Microsoft.Identity.Client;
-
 
 namespace MvcMovie.Video
 {
 
-    public class VideosController : Controller
+    public class VideosController(MvcMovieContext context) : Controller
     {
-        private readonly MvcMovieContext _context;
-
-        public VideosController(MvcMovieContext context)
-        {
-            _context = context;
-        }
+        private readonly MvcMovieContext _context = context;
 
         public async Task<IActionResult> Player(int? id)
         {

@@ -1,6 +1,5 @@
 using LibraryManager;
 using Microsoft.AspNetCore.Mvc;
-using MvcMovie.Data;
 
 namespace MvcMovie.Controllers;
 

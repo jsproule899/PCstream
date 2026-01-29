@@ -1,20 +1,15 @@
 using MvcMovie.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MvcMovie.Models;
 
 namespace MvcMovie.Controllers
 {
     [Route("Shows")]
-    public class ShowsController : Controller
+    public class ShowsController(MvcMovieContext context) : Controller
     {
 
-        private readonly MvcMovieContext _context;
-
-        public ShowsController(MvcMovieContext context)
-        {
-            _context = context;
-        }
-
+        private readonly MvcMovieContext _context = context;
 
         [HttpGet]
         public async Task<IActionResult> Index(string searchString)
@@ -25,7 +20,7 @@ namespace MvcMovie.Controllers
                 return Problem("Entity set 'MvcMovieContext.Show' is null.");
             }
 
-            IQueryable<Models.Show> shows = from s in _context.Show orderby s.Title select s;
+            IQueryable<Show> shows = from s in _context.Show orderby s.Title select s;
 
             if (!String.IsNullOrEmpty(searchString))
             {
