@@ -44,12 +44,23 @@ public class Library(string path)
                 if (movie != null)
                 {
                     context.Remove(movie);
+                    RecentlyWatched? recentlyWatched = context.RecentlyWatched.Include(rw => rw.Movie).Where(rw => rw.Movie == movie).FirstOrDefault();
+                    if (recentlyWatched != null)
+                    {
+                        context.Remove(recentlyWatched);
+                    }
                 }
+
 
                 Episode? episode = context.Episode.Include(e => e.Video).Where(e => e.Video == video).FirstOrDefault();
                 if (episode != null)
                 {
                     context.Remove(episode);
+                    RecentlyWatched? recentlyWatched = context.RecentlyWatched.Include(rw => rw.Episode).Where(rw => rw.Episode == episode).FirstOrDefault();
+                    if (recentlyWatched != null)
+                    {
+                        context.Remove(recentlyWatched);
+                    }
                 }
                 context.Season.Include(s => s.Episodes).Where(s => !s.Episodes.Any()).ToList().ForEach(season =>
                 {
