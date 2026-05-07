@@ -161,7 +161,7 @@ public class Library(string path)
                                     Rating = season.vote_average,
                                     SeasonNumber = season.season_number,
                                     Summary = season.overview,
-                                    Poster = season.poster_path,
+                                    Poster = season.poster_path ?? curShow.Poster,
                                     ShowId = curShow.Id,
                                     Show = curShow
                                 };
