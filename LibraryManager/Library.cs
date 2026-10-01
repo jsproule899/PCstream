@@ -192,7 +192,7 @@ public class Library(string path)
                                 {
                                     Title = episode.name ?? mediaFile.Season.ToString(),
                                     EpisodeNumber = mediaFile.Episode,
-                                    ReleaseDate = DateTime.Parse(episode.air_date),
+                                    ReleaseDate = DateTime.Parse(episode.air_date ?? "1900-01-01"),
                                     Rating = episode.vote_average,
                                     SeasonNumber = episode.season_number,
                                     Summary = episode.overview,
