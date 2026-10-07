@@ -98,7 +98,7 @@ public class Library(string path)
         if (context.Video.Where(v => v.Filepath.Equals(mediaFile.Filepath)).ToList().IsNullOrEmpty())
         {
 
-            HttpResponseMessage response = await client.GetAsync("https://api.themoviedb.org/3/search/tv?api_key=d0f5aebbfd72d42d2d77d80d3997aefd&query=" + mediaFile.Name);
+            HttpResponseMessage response = await client.GetAsync("https://api.themoviedb.org/3/search/tv?api_key=d0f5aebbfd72d42d2d77d80d3997aefd&query=" + mediaFile.Name + (mediaFile.Year != null ? "&year=" + mediaFile.Year : ""));
             if (response.IsSuccessStatusCode)
             {
                 string json = await response.Content.ReadAsStringAsync();
@@ -240,7 +240,7 @@ public class Library(string path)
             while (results.results.IsNullOrEmpty() && !query.Equals(string.Empty))
             {
                 int lastTokenIndex = query.LastIndexOf(' ');
-                response = await client.GetAsync("https://api.themoviedb.org/3/search/movie?api_key=d0f5aebbfd72d42d2d77d80d3997aefd&query=" + query);
+                response = await client.GetAsync("https://api.themoviedb.org/3/search/movie?api_key=d0f5aebbfd72d42d2d77d80d3997aefd&query=" + query + (mediaFile.Year != null ? "&year=" + mediaFile.Year : ""));
                 if (response.IsSuccessStatusCode)
                 {
                     string json = await response.Content.ReadAsStringAsync();
@@ -265,7 +265,6 @@ public class Library(string path)
 
             }
 
-            Console.WriteLine("out of loop");
 
             if (ids != null)
             {
