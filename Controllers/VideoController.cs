@@ -71,10 +71,15 @@ namespace MvcMovie.Video
                 var show = await _context.Show.Where(s => s.Id == season.ShowId).FirstOrDefaultAsync() ?? throw new Exception("Show not found for season");
                 ViewData["Show"] = show;
                 ViewData["Season"] = season;
-                var nextEpisodeCurrentSeason = await _context.Episode.Include("Video").Where(e => e.SeasonId == episode.SeasonId).Where(e => e.EpisodeNumber > episode.EpisodeNumber).OrderBy(e => e.EpisodeNumber).FirstOrDefaultAsync();
-                Episode? NextEpisode = nextEpisodeCurrentSeason ?? await _context.Episode.Include("Video").Where(e => e.Season.ShowId == show.Id).Where(e => e.Season.SeasonNumber > season.SeasonNumber).OrderBy(e => e.Season.SeasonNumber).ThenBy(e => e.EpisodeNumber).FirstOrDefaultAsync();
-                Console.WriteLine("NextEpisode.Video: " + NextEpisode?.Video.Id);
-                ViewData["NextEpisode"] = NextEpisode ?? null;
+
+                Episode? nextEpisode = await _context.Episode.Include(e => e.Video)
+                        .Where(e => e.Season.ShowId == show.Id && e.Video != null && (e.Season.SeasonNumber > season.SeasonNumber || (e.Season.SeasonNumber == season.SeasonNumber && e.EpisodeNumber > episode.EpisodeNumber)))
+                        .OrderBy(e => e.Season.SeasonNumber)
+                        .ThenBy(e => e.EpisodeNumber)
+                        .ThenBy(e => e.Id)
+                        .FirstOrDefaultAsync();
+                Console.WriteLine("NextEpisode.Video: " + nextEpisode?.Video.Id);
+                ViewData["NextEpisode"] = nextEpisode ?? null;
             }
 
             if (video == null)
